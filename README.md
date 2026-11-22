@@ -211,36 +211,9 @@ installs with **no extras** and runs the happy path, so the zero-dependency clai
 rather than asserted — and runs both `pytest` and `python -m pytest`, which resolve `sys.path`
 differently.
 
-The suite is organised around the specific mistakes in [the previous
-version](#history): `test_context.py` has a class per protection rule, and `test_retry.py`
-opens with the case that proves a non-retryable error is attempted exactly once.
-
----
-
-## History
-
-This repository held a single 315-line script from 2023. It was rewritten in November 2026,
-and not for style — it could not run, and each of its three advertised features was broken:
-
-- **Lines 300–314 executed two live API calls at import time.** `import LLM_wrapper` fired
-  network requests and printed to stdout. Disqualifying for anything called a wrapper.
-- **"Rate-limit retry handling"** retried `InvalidRequestError`, which can never succeed, and
-  slept a flat 60 seconds. The branch meant to handle it was unreachable — nested inside the
-  check it was meant to follow.
-- **"Conversation history management"** mixed `ChatMessage` objects and raw dicts in one list,
-  so the next trim raised `AttributeError` on `msg.content`. It also mutated history in place,
-  so one long message silently erased the conversation.
-- **"Automatic token-limit truncation"** keyed on `finish_reason == "incomplete"`, which is not
-  an OpenAI value (it is `"length"`), so the splitting path was dead code.
-- `prioritize_messages` sorted on `msg.timestamp`, a field `ChatMessage` does not have.
-  `openai.ChatCompletionChoice` does not exist. `CompletionModelWrapper.set_model` wrote an
-  attribute the request path never read, making the setter a silent no-op.
-- It targeted `openai<1.0` (`openai.ChatCompletion`, `openai.error.*`) and
-  `text-davinci-003`, both removed.
-
-Nothing was salvageable, but the *intent* was right: token limits, history and retries are
-genuinely the three things worth wrapping. This is that intent implemented so each piece has a
-test that fails when it breaks.
+The suite is organised around the guarantees rather than the functions:
+`test_context.py` has a class per protection rule, and `test_retry.py` opens with the case
+that proves a non-retryable error is attempted exactly once.
 
 ## Licence
 
