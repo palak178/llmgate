@@ -1,8 +1,8 @@
 """Tests for the retry policy.
 
-The first class is the regression test for the previous version's worst bug: it retried an
-invalid-request error, which cannot ever succeed, and slept a flat 60 seconds between
-attempts.
+The first class pins down what is retried and what is not. An invalid-request error can
+never succeed, so attempting it more than once only adds latency and load; a flat delay from
+many clients produces the thundering herd that keeps a recovering service down.
 
 `sleep` is injected throughout, so the delay *sequence* is asserted without the suite ever
 actually waiting. A retry policy whose tests have to sleep is either slow or untested.

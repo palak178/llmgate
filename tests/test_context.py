@@ -1,9 +1,9 @@
 """Tests for context fitting.
 
-Each class here maps to a rule the previous version of this library broke. It popped
-`memory[0]` until an arithmetic check passed, which meant it could drop the system prompt,
-drop the question being asked, split a turn pair, and — when its subtraction went negative —
-drop everything.
+Each class here maps to one protection rule. They exist because the obvious implementation
+— pop `messages[0]` until a size check passes — breaks all of them at once: it discards the
+system prompt first, will drop the question being answered, splits turn pairs, and empties
+the conversation entirely if its arithmetic can go negative.
 """
 
 from __future__ import annotations

@@ -1,14 +1,14 @@
 """Retry policy: jittered exponential backoff, and only for errors that can succeed later.
 
-Three things the library this replaced got wrong, each fixed here and each with a test:
+Three decisions, each with a test, and each the opposite of what a naive retry loop does:
 
-* It retried an **invalid-request** error. That request will fail identically forever, so the
-  retries only add latency and load. Retryability is a property of the error type, and the
-  default for an unrecognised error is *not* retryable.
-* It slept a **constant 60 seconds**. Constant delay from many clients produces a thundering
-  herd that keeps a recovering service down; exponential backoff with jitter is the standard
-  fix and costs nothing to implement.
-* It **ignored `Retry-After`**. When a provider states how long to wait, that is better
+* **Retryability is a property of the error type**, and an unrecognised error defaults to
+  *not* retryable. An invalid request fails identically forever, so attempting it again only
+  adds latency and load.
+* **Backoff is exponential and jittered.** A constant delay across many clients produces a
+  thundering herd that keeps a recovering service down; jitter decorrelates them and costs
+  nothing to implement.
+* **`Retry-After` wins.** When a provider states how long to wait, that is better
   information than any client-side computation.
 """
 

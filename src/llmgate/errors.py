@@ -1,9 +1,9 @@
 """Exceptions.
 
-The split that matters is `RetryableError` versus everything else. The library this replaced
-got it backwards — it retried an invalid-request error (which will fail identically forever)
-and gave up on some transient ones — so the distinction is a type here rather than a
-condition written out at each call site.
+The split that matters is `RetryableError` versus everything else, and it is a type rather
+than a condition rewritten at each call site. Getting it wrong is costly in both directions:
+retrying an invalid request burns attempts on something that will fail identically forever,
+while giving up on a rate limit discards a call that would have succeeded a second later.
 """
 
 from __future__ import annotations

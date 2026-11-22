@@ -132,8 +132,8 @@ class Conversation:
     History is kept in full here and trimmed per request by `Client`, rather than being
     truncated destructively as it grows. The distinction matters: trimming for one call must
     not permanently discard context that a larger model, or a shorter next question, could
-    still have used. The previous version of this library mutated its history in place, so a
-    single long message silently deleted the conversation.
+    still have used. Trimming the stored history instead would make one oversized message
+    permanently destructive.
     """
 
     client: Client

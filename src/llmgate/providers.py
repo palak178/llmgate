@@ -103,9 +103,9 @@ class FakeProvider:
 class OpenAIProvider:
     """OpenAI chat completions. Needs the `openai` extra.
 
-    Note for anyone porting old code: this uses `openai>=1.0`. The module-level
-    `openai.ChatCompletion.create` and `openai.error.*` that the previous version of this
-    repository was built on were removed in 1.0, which is why none of it ran.
+    Note for anyone porting older code: this targets `openai>=1.0`. The module-level
+    `openai.ChatCompletion.create` and `openai.error.*` API was removed in 1.0, so anything
+    written against it needs the client-object form used here.
     """
 
     def __init__(self, api_key: str | None = None, *, base_url: str | None = None) -> None:

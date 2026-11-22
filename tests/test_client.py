@@ -273,7 +273,11 @@ class TestConversation:
         assert convo.messages[0].content == "Be terse."
 
     def test_history_is_not_destructively_truncated(self):
-        """The previous version mutated history in place, so one long message erased it."""
+        """Trimming is per request; the stored history is never truncated in place.
+
+        Otherwise a single oversized message would permanently erase context that a larger
+        model, or a shorter next question, could still have used.
+        """
         convo = Conversation(
             client=client(model="test-tiny", max_output_tokens=100), system="Be brief."
         )

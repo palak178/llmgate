@@ -15,8 +15,10 @@ wrong:
 5. **If the protected messages alone do not fit, refuse.** Trimming cannot help, so a
    `ContextOverflowError` before the call beats a provider error after one.
 
-The library this replaced violated 1, 2 and 4 — it popped `self.memory[0]` until a subtraction
-came out positive — and its arithmetic could go negative, in which case it dropped everything.
+Rules 1, 2 and 4 are what separate this from the obvious implementation, which pops the
+oldest message until a size check passes. That loop discards the system prompt first, will
+drop the question being answered, and splits turn pairs — and if its arithmetic can go
+negative it empties the conversation entirely.
 """
 
 from __future__ import annotations
