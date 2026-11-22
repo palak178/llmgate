@@ -2,7 +2,7 @@
 
 **A provider-agnostic LLM client that refuses to send a request it can prove will fail.**
 
-[![CI](https://github.com/palak178/llm-wrapper/actions/workflows/ci.yml/badge.svg)](https://github.com/palak178/llm-wrapper/actions/workflows/ci.yml)
+[![CI](https://github.com/palak178/llmgate/actions/workflows/ci.yml/badge.svg)](https://github.com/palak178/llmgate/actions/workflows/ci.yml)
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
 ![Zero dependencies](https://img.shields.io/badge/dependencies-0-success)
 ![License MIT](https://img.shields.io/badge/license-MIT-green)
@@ -40,7 +40,7 @@ path. A library whose job is to stop you overspending should not cost you a depe
 ## See it refuse
 
 ```bash
-git clone https://github.com/palak178/llm-wrapper.git llmgate && cd llmgate
+git clone https://github.com/palak178/llmgate.git && cd llmgate
 pip install -e ".[dev]"
 make demo          # no API key, no network
 ```
