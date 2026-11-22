@@ -74,7 +74,7 @@ make demo          # no API key, no network
 ```python
 budget = Budget(limit_usd=0.01)
 client = Client(provider=p, model="gpt-4o", budget=budget, max_output_tokens=16_000)
-client.complete([...])          # BudgetExceededError — and nothing was sent
+client.complete([...])  # BudgetExceededError — and nothing was sent
 assert budget.spent_usd == 0.0
 ```
 
@@ -160,6 +160,7 @@ provider updates it, so three things make that survivable:
 
 ```python
 from llmgate import ModelSpec, register
+
 register(ModelSpec("my-local-llama", 8192, 2048, 0.0, 0.0, "2026-11-23"))
 ```
 
