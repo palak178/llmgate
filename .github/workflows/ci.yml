@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Lint + tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+
+      - name: Lint
+        run: python -m ruff check .
+
+      - name: Format check
+        run: python -m ruff format --check .
+
+      - name: Tests
+        run: python -m pytest -q
+
+      - name: Tests via the console script
+        run: pytest -q
+
+  no-deps:
+    name: Zero-dependency install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      # The package claims no runtime dependencies. That claim rots the moment someone adds
+      # an import, and the full dev install would hide it, so it is tested directly: install
+      # with nothing and import every module.
+      - name: Install without extras
+        run: python -m pip install -e .
+
+      - name: Import every module
+        run: |
+          python - <<'PY'
+          import importlib
+          for name in [
+              "llmgate", "llmgate.client", "llmgate.context", "llmgate.errors",
+              "llmgate.models", "llmgate.providers", "llmgate.retry",
+              "llmgate.router", "llmgate.tokens",
+          ]:
+              importlib.import_module(name)
+              print("ok", name)
+          PY
+
+      - name: Works end to end with no dependencies
+        run: |
+          python - <<'PY'
+          from llmgate import Budget, Client, FakeProvider, Message
+          client = Client(
+              provider=FakeProvider(replies=["Thirty days."]),
+              model="gpt-4o-mini",
+              budget=Budget(limit_usd=1.0),
+          )
+          reply = client.complete([Message("user", "How much notice?")])
+          assert reply.text == "Thirty days."
+          assert reply.usage.cost_usd > 0
+          # tiktoken is absent here, so counting must fall back and say so.
+          from llmgate.tokens import count_text, tiktoken_available
+          assert not tiktoken_available()
+          tokens, exact = count_text("hello world", model="gpt-4o-mini")
+          assert tokens > 0 and exact is False
+          print("zero-dependency path OK")
+          PY

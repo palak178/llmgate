@@ -1,0 +1,60 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "llmgate"
+version = "1.0.0"
+description = "A provider-agnostic LLM client that refuses to send a request it can prove will fail."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Palak Namdev" }]
+keywords = [
+    "llm", "openai", "anthropic", "token-counting", "context-window",
+    "cost-control", "budget", "retry", "backoff", "model-router",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+# No dependencies at all. Providers are reached through a Protocol, token counting falls back
+# to a documented heuristic when tiktoken is absent, and the whole test suite runs against a
+# fake. A library whose job is to stop you overspending should not itself cost you a
+# dependency tree.
+dependencies = []
+
+[project.optional-dependencies]
+# Exact token counting. Without it, counts come from the heuristic in `tokens.py` and are
+# reported as inexact rather than silently trusted.
+tokens = ["tiktoken>=0.8"]
+openai = ["openai>=1.57"]
+anthropic = ["anthropic>=0.40"]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "ruff>=0.8",
+    "tiktoken>=0.8",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/llmgate"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q --strict-markers"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4", "RUF"]
+ignore = ["E501"]
